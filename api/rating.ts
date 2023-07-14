@@ -10,8 +10,8 @@ interface UserRatingInfo {
     text: string;
 }
 
-function escape(username: string) {
-    return encodeURIComponent(username.replace(/-/g, '--').replace(/_/g, '__'));
+function escape(user: string) {
+    return encodeURIComponent(user.replace(/-/g, '--').replace(/_/g, '__'));
 }
 
 function getRatingColor(rating: number) {
@@ -25,8 +25,8 @@ function getRatingColor(rating: number) {
     return '808080';
 }
 
-async function fetchData(username: string, type: string): Promise<UserRatingInfo> {
-    const res = await fetch(`https://atcoder.jp/users/${username}?contestType=${type}`);
+async function fetchData(user: string, type: string): Promise<UserRatingInfo> {
+    const res = await fetch(`https://atcoder.jp/users/${user}?contestType=${type}`);
     const html = await res.text();
     const document = parse(html);
     const container = document.querySelector('#main-container');
@@ -46,22 +46,22 @@ async function fetchData(username: string, type: string): Promise<UserRatingInfo
     return { rating, text: `${text}  ${rating}` };
 }
 
-async function getBadgeImage(username: string, data: UserRatingInfo, style: string) {
+async function getBadgeImage(user: string, data: UserRatingInfo, style: string) {
     const color = getRatingColor(data.rating);
-    const escapedUsername = escape(username);
+    const escapeduser = escape(user);
     const escapedRatingText = escape(data.text);
 
     const params = new URLSearchParams({
         longCache: 'true',
         style,
         logo,
-        link: `https://atcoder.jp/users/${username}`,
+        link: `https://atcoder.jp/users/${user}`,
     }).toString();
 
     console.log(params);
 
     const res = await fetch(
-        `https://img.shields.io/badge/${escapedUsername}-${escapedRatingText}-${color}.svg?${params}`
+        `https://img.shields.io/badge/${escapeduser}-${escapedRatingText}-${color}.svg?${params}`
     );
 
     if (!res.ok) throw 'error';
@@ -69,14 +69,14 @@ async function getBadgeImage(username: string, data: UserRatingInfo, style: stri
 }
 
 export default async (request: VercelRequest, response: VercelResponse) => {
-    let { username = 'baoshuo', type = 'algo', style = 'for-the-badge' } = request.query;
+    let { user = 'Lyccrius', type = 'algo', style = 'for-the-badge' } = request.query;
 
-    if (Array.isArray(username)) username = username[0];
+    if (Array.isArray(user)) user = user[0];
     if (Array.isArray(type)) type = type[0];
     if (Array.isArray(style)) style = style[0];
 
-    const data = await fetchData(username as string, type as string).catch(() => ({ rating: 0, text: 'N/A' }));
-    getBadgeImage(username as string, data, style as string)
+    const data = await fetchData(user as string, type as string).catch(() => ({ rating: 0, text: 'N/A' }));
+    getBadgeImage(user as string, data, style as string)
         .then((data) => {
             response
                 .status(200)
