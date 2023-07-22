@@ -22,7 +22,7 @@ function getRatingColor(rating: number) {
     if (rating >= 1200) return '00C0C0';
     if (rating >= 800) return '008000';
     if (rating >= 400) return '804000';
-    return '808080';
+    return '804000';
 }
 
 async function fetchData(user: string, type: string): Promise<UserRatingInfo> {
